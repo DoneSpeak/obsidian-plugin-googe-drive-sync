@@ -1,5 +1,5 @@
 {
-  "name": "gdrive-sync",
+  "name": "obsidian-gdrive-bisync",
   "version": "1.0.0",
   "description": "Sync Obsidian vault with Google Drive",
   "main": "main.js",
