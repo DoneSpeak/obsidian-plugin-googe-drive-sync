@@ -1,6 +1,6 @@
 {
   "id": "gdrive-bisync",
-  "name": "GDrive Sync",
+  "name": "OmniSync GDrive",
   "version": "1.0.0",
   "minAppVersion": "1.0.0",
   "description": "Synchronize your vault with Google Drive",
