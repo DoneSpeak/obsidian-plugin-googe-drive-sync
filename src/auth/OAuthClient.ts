@@ -1,4 +1,4 @@
-import { requestUrl, Notice } from 'obsidian';
+import { requestUrl } from 'obsidian';
 import { DeviceCodeResponse, TokenResponse } from '../types';
 
 export class OAuthClient {
@@ -32,6 +32,9 @@ export class OAuthClient {
       grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
     });
 
+    // Polling loop: runs until we get a token or an error response.
+    // Google's device code flow requires polling the token endpoint
+    // at a specified interval until the user completes authorization.
     // eslint-disable-next-line no-constant-condition
     while (true) {
       await this.sleep(interval * 1000);
@@ -94,6 +97,6 @@ export class OAuthClient {
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => window.setTimeout(resolve, ms));
   }
 }

@@ -1,4 +1,4 @@
-import { Modal, App, requestUrl } from 'obsidian';
+import { Modal, App } from 'obsidian';
 import { SyncAction } from '../types';
 
 export class ConflictResolutionModal extends Modal {
@@ -16,18 +16,10 @@ export class ConflictResolutionModal extends Modal {
     const { contentEl, titleEl } = this;
     titleEl.setText(`Conflict: ${this.action.localPath}`);
 
-    const container = contentEl.createDiv();
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.gap = '1em';
+    const container = contentEl.createDiv({ cls: 'gdrive-sync-flex-col' });
 
     // Info row
-    const infoRow = container.createDiv();
-    infoRow.style.display = 'flex';
-    infoRow.style.justifyContent = 'space-between';
-    infoRow.style.padding = '8px';
-    infoRow.style.background = 'var(--background-secondary)';
-    infoRow.style.borderRadius = '4px';
+    const infoRow = container.createDiv({ cls: 'gdrive-sync-info-row' });
 
     infoRow.createSpan({
       text: `Local: ${this.action.localFile ? new Date(this.action.localFile.modifiedTime).toLocaleString() : 'N/A'}`,
@@ -37,12 +29,7 @@ export class ConflictResolutionModal extends Modal {
     });
 
     // File info
-    const fileInfo = container.createDiv();
-    fileInfo.style.display = 'flex';
-    fileInfo.style.justifyContent = 'space-between';
-    fileInfo.style.padding = '4px 8px';
-    fileInfo.style.fontSize = '0.9em';
-    fileInfo.style.color = 'var(--text-muted)';
+    const fileInfo = container.createDiv({ cls: 'gdrive-sync-file-info' });
 
     if (this.action.localFile) {
       fileInfo.createSpan({ text: `Size: ${this.action.localFile.size} bytes` });
@@ -52,12 +39,7 @@ export class ConflictResolutionModal extends Modal {
     }
 
     // Action buttons
-    const buttonRow = container.createDiv();
-    buttonRow.style.display = 'flex';
-    buttonRow.style.flexWrap = 'wrap';
-    buttonRow.style.gap = '8px';
-    buttonRow.style.justifyContent = 'center';
-    buttonRow.style.marginTop = '1em';
+    const buttonRow = container.createDiv({ cls: 'gdrive-sync-flex-center' });
 
     const localBtn = buttonRow.createEl('button', { text: 'Keep Local Version' });
     localBtn.className = 'mod-cta';
@@ -81,10 +63,8 @@ export class ConflictResolutionModal extends Modal {
     // Warning text
     const warning = container.createEl('p', {
       text: 'Both versions have been modified since the last sync. Choose which version to keep, or keep both (the local file will be renamed).',
-      cls: 'setting-item-description',
+      cls: 'gdrive-sync-warning-text',
     });
-    warning.style.marginTop = '0.5em';
-    warning.style.fontSize = '0.85em';
   }
 
   onClose(): void {

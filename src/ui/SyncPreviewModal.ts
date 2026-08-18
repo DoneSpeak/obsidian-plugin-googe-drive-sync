@@ -1,4 +1,4 @@
-import { Modal, App, Notice } from 'obsidian';
+import { Modal, App } from 'obsidian';
 import { SyncPlan, SyncAction } from '../types';
 
 export class SyncPreviewModal extends Modal {
@@ -28,11 +28,7 @@ export class SyncPreviewModal extends Modal {
     contentEl.createDiv({ cls: 'setting-item' });
 
     // Buttons
-    const buttonRow = contentEl.createDiv();
-    buttonRow.style.display = 'flex';
-    buttonRow.style.justifyContent = 'flex-end';
-    buttonRow.style.gap = '8px';
-    buttonRow.style.marginTop = '1em';
+    const buttonRow = contentEl.createDiv({ cls: 'gdrive-sync-btn-row-end-mt' });
 
     const cancelBtn = buttonRow.createEl('button', { text: 'Cancel' });
     cancelBtn.onclick = () => {
@@ -63,29 +59,22 @@ export class SyncPreviewModal extends Modal {
     const actions = this.plan.actions.filter(a => a.type === type);
     if (actions.length === 0) return;
 
-    const groupEl = container.createDiv();
-    groupEl.style.marginBottom = '0.5em';
+    const groupEl = container.createDiv({ cls: 'gdrive-sync-preview-group' });
 
     const headerEl = groupEl.createEl('h3', { text: `${title} (${actions.length})` });
-    headerEl.style.color = color;
-    headerEl.style.margin = '0.5em 0';
+    headerEl.addClass('gdrive-sync-preview-header');
+    headerEl.addClass(`gdrive-sync-preview-header-${type}`);
 
     for (const action of actions) {
-      const itemRow = groupEl.createDiv();
-      itemRow.style.display = 'flex';
-      itemRow.style.alignItems = 'center';
-      itemRow.style.padding = '4px 8px';
-      itemRow.style.borderRadius = '4px';
-      itemRow.style.marginBottom = '2px';
+      const itemRow = groupEl.createDiv({ cls: 'gdrive-sync-preview-item' });
 
       if (action.type === 'conflict') {
-        itemRow.style.background = 'var(--background-modifier-error-rgb)';
-        itemRow.style.cursor = 'pointer';
+        itemRow.addClass('gdrive-sync-preview-item-conflict');
 
         const label = itemRow.createSpan({
           text: `🔴 ${action.localPath} — Click to resolve`,
         });
-        label.style.flex = '1';
+        label.addClass('gdrive-sync-flex-1');
 
         const resolveBtn = itemRow.createEl('button', { text: 'Resolve' });
         resolveBtn.onclick = async (e) => {
@@ -94,7 +83,7 @@ export class SyncPreviewModal extends Modal {
           if (resolution) {
             action.resolved = true;
             action.resolution = resolution;
-            itemRow.style.background = 'var(--background-modifier-success)';
+            itemRow.addClass('gdrive-sync-preview-item-resolved');
             label.setText(`✅ ${action.localPath} — Resolved (keep ${resolution})`);
             resolveBtn.remove();
 
@@ -105,7 +94,7 @@ export class SyncPreviewModal extends Modal {
       } else {
         const checkbox = itemRow.createEl('input', { type: 'checkbox' });
         checkbox.checked = true;
-        checkbox.style.marginRight = '8px';
+        checkbox.addClass('gdrive-sync-checkbox');
         this.actionCheckboxes.set(action.localPath, true);
         checkbox.onchange = () => {
           this.actionCheckboxes.set(action.localPath, checkbox.checked);
@@ -114,14 +103,13 @@ export class SyncPreviewModal extends Modal {
         const label = itemRow.createSpan({
           text: `${action.localPath}`,
         });
-        label.style.flex = '1';
+        label.addClass('gdrive-sync-flex-1');
 
         if (action.localFile) {
           const subtitle = itemRow.createSpan({
             text: `modified: ${new Date(action.localFile.modifiedTime).toLocaleTimeString()}`,
-            cls: 'setting-item-description',
+            cls: 'gdrive-sync-preview-subtitle',
           });
-          subtitle.style.fontSize = '0.8em';
         }
       }
     }

@@ -1,4 +1,3 @@
-import { Notice } from 'obsidian';
 import { SyncConfig } from '../types';
 
 export class GitIntegration {

@@ -1,5 +1,3 @@
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
-
 // ── Auth Types ──
 export interface DeviceCodeResponse {
   device_code: string;

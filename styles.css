@@ -1,0 +1,224 @@
+/* ── OmniSync GDrive – Styles ── */
+
+/* ── Layout utilities ── */
+.gdrive-sync-flex-row {
+  display: flex;
+  align-items: center;
+}
+.gdrive-sync-flex-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gdrive-sync-flex-row-end {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.gdrive-sync-flex-center {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.gdrive-sync-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.gdrive-sync-full-width {
+  width: 100%;
+}
+
+/* ── Spacing ── */
+.gdrive-sync-mt-1 {
+  margin-top: 1em;
+}
+.gdrive-sync-mb-1 {
+  margin-bottom: 1em;
+}
+.gdrive-sync-mb-05 {
+  margin-bottom: 0.5em;
+}
+.gdrive-sync-mb-012 {
+  margin-bottom: 12px;
+}
+.gdrive-sync-mb-016 {
+  margin-bottom: 16px;
+}
+.gdrive-sync-ml-010 {
+  margin-left: 10px;
+}
+
+/* ── Typography ── */
+.gdrive-sync-bold {
+  font-weight: bold;
+}
+.gdrive-sync-text-muted {
+  color: var(--text-muted);
+}
+.gdrive-sync-text-error {
+  color: var(--text-error);
+}
+.gdrive-sync-text-success {
+  color: var(--color-green);
+}
+.gdrive-sync-text-warning {
+  color: var(--color-orange);
+}
+.gdrive-sync-text-accent {
+  color: var(--text-accent);
+}
+.gdrive-sync-font-small {
+  font-size: var(--font-small);
+}
+.gdrive-sync-cursor-pointer {
+  cursor: pointer;
+}
+.gdrive-sync-flex-1 {
+  flex: 1;
+}
+
+/* ── Summary heading (SettingsTab manual token) ── */
+.gdrive-sync-summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+/* ── Parse textarea (SettingsTab) ── */
+.gdrive-sync-parse-textarea {
+  width: 100%;
+  min-height: 160px;
+  font-family: monospace;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.gdrive-sync-token-textarea {
+  width: 100%;
+  min-height: 60px;
+  font-family: monospace;
+  font-size: 12px;
+}
+.gdrive-sync-refresh-textarea {
+  width: 100%;
+  min-height: 40px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ── Buttons row ── */
+.gdrive-sync-btn-row {
+  display: flex;
+  gap: 8px;
+}
+.gdrive-sync-btn-row-end {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.gdrive-sync-btn-row-end-mt {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 1em;
+}
+
+/* ── Separator ── */
+.gdrive-sync-separator {
+  margin: 12px 0;
+}
+
+/* ── Conflict Resolution Modal ── */
+.gdrive-sync-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+}
+.gdrive-sync-file-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+.gdrive-sync-warning-text {
+  margin-top: 0.5em;
+  font-size: 0.85em;
+}
+
+/* ── Sync Preview Modal ── */
+.gdrive-sync-preview-group {
+  margin-bottom: 0.5em;
+}
+.gdrive-sync-preview-header {
+  margin: 0.5em 0;
+}
+.gdrive-sync-preview-header-upload {
+  color: var(--color-green);
+}
+.gdrive-sync-preview-header-download {
+  color: var(--color-blue);
+}
+.gdrive-sync-preview-header-conflict {
+  color: var(--color-red);
+}
+.gdrive-sync-preview-header-delete_drive,
+.gdrive-sync-preview-header-delete_local {
+  color: var(--color-orange);
+}
+.gdrive-sync-preview-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+}
+.gdrive-sync-preview-item-conflict {
+  background: var(--background-modifier-error-rgb);
+  cursor: pointer;
+}
+.gdrive-sync-preview-item-resolved {
+  background: var(--background-modifier-success);
+}
+.gdrive-sync-preview-subtitle {
+  font-size: 0.8em;
+}
+
+/* ── Mapping heading (SettingsTab) ── */
+.gdrive-sync-mapping-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Status badge ── */
+.gdrive-sync-status-badge {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* ── Device code modal ── */
+.gdrive-sync-device-code {
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5em;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  margin-bottom: 1em;
+}
+
+/* ── Device URL in modal ── */
+.gdrive-sync-device-url {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+/* ── Checkbox spacing ── */
+.gdrive-sync-checkbox {
+  margin-right: 8px;
+}

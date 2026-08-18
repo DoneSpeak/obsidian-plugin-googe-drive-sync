@@ -1,4 +1,4 @@
-import { requestUrl, Notice } from 'obsidian';
+import { requestUrl } from 'obsidian';
 import { DriveFile } from '../types';
 import { TokenManager } from '../auth/TokenManager';
 import { driveFileFromJson } from './DriveFile';
@@ -231,6 +231,6 @@ export class DriveClient {
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => window.setTimeout(resolve, ms));
   }
 }

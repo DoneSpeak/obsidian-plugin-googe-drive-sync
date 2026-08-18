@@ -1,4 +1,4 @@
-# GDrive Sync
+# OmniSync GDrive
 
 Synchronize your Obsidian vault with Google Drive. Bidirectional sync with conflict resolution, pull-only mode, and git integration.
 

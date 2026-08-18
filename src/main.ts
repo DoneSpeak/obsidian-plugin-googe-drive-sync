@@ -186,14 +186,10 @@ export default class GoogleDriveSyncPlugin extends Plugin {
       const input = modal.contentEl.createEl('input', {
         type: 'text',
         placeholder: 'Client ID',
+        cls: 'gdrive-sync-full-width gdrive-sync-mb-1',
       });
-      input.style.width = '100%';
-      input.style.marginBottom = '1em';
 
-      const buttonRow = modal.contentEl.createDiv();
-      buttonRow.style.display = 'flex';
-      buttonRow.style.justifyContent = 'flex-end';
-      buttonRow.style.gap = '8px';
+      const buttonRow = modal.contentEl.createDiv({ cls: 'gdrive-sync-btn-row-end' });
 
       const cancelBtn = buttonRow.createEl('button', { text: 'Cancel' });
       cancelBtn.onclick = () => {
@@ -227,20 +223,11 @@ export default class GoogleDriveSyncPlugin extends Plugin {
     const urlEl = modal.contentEl.createEl('a', {
       text: verificationUrl,
       href: verificationUrl,
+      cls: 'gdrive-sync-device-url',
     });
-    urlEl.style.display = 'block';
-    urlEl.style.fontWeight = 'bold';
-    urlEl.style.marginBottom = '1em';
 
     modal.contentEl.createEl('p', { text: 'Step 2: Enter this code:' });
-    const codeEl = modal.contentEl.createEl('div', { text: userCode });
-    codeEl.style.fontSize = '2em';
-    codeEl.style.fontWeight = 'bold';
-    codeEl.style.textAlign = 'center';
-    codeEl.style.padding = '0.5em';
-    codeEl.style.background = 'var(--background-secondary)';
-    codeEl.style.borderRadius = '8px';
-    codeEl.style.marginBottom = '1em';
+    const codeEl = modal.contentEl.createEl('div', { text: userCode, cls: 'gdrive-sync-device-code' });
 
     modal.contentEl.createEl('p', {
       text: 'Waiting for authorization...',
@@ -262,7 +249,7 @@ export default class GoogleDriveSyncPlugin extends Plugin {
 
   private stopAutoSync(): void {
     if (this.syncTimer !== null) {
-      clearInterval(this.syncTimer);
+      window.clearInterval(this.syncTimer);
       this.syncTimer = null;
     }
   }

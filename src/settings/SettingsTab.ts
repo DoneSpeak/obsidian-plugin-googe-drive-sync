@@ -33,7 +33,7 @@ class EditMappingModal extends Modal {
       .addText(text => {
         text.setValue(this.newLocalPath)
           .onChange(val => { this.newLocalPath = val; });
-        text.inputEl.style.width = '100%';
+        text.inputEl.addClass('gdrive-sync-full-width');
       });
 
     new Setting(contentEl)
@@ -42,15 +42,11 @@ class EditMappingModal extends Modal {
       .addText(text => {
         text.setValue(this.newDriveFolderId)
           .onChange(val => { this.newDriveFolderId = val; });
-        text.inputEl.style.width = '100%';
+        text.inputEl.addClass('gdrive-sync-full-width');
       });
 
     // Buttons
-    const btnRow = contentEl.createDiv();
-    btnRow.style.display = 'flex';
-    btnRow.style.justifyContent = 'flex-end';
-    btnRow.style.gap = '8px';
-    btnRow.style.marginTop = '16px';
+    const btnRow = contentEl.createDiv({ cls: 'gdrive-sync-btn-row-end' });
 
     const cancelBtn = btnRow.createEl('button', { text: 'Cancel' });
     cancelBtn.onclick = () => this.close();
@@ -108,7 +104,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
   }
 
   private renderAuthSection(containerEl: HTMLElement): void {
-    containerEl.createEl('h2', { text: 'Google Account' });
+    new Setting(containerEl).setName('Google Account').setHeading();
 
     const config = this.settingsManager.getConfig();
     const isLoggedIn = !!config.auth.accessToken && !!config.auth.refreshToken;
@@ -142,11 +138,9 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
     details.open = true;
     const summary = details.createEl('summary');
     summary.textContent = 'Manual Token Setup (OAuth Playground)';
-    summary.style.cursor = 'pointer';
-    summary.style.fontWeight = 'bold';
-    summary.style.marginBottom = '4px';
+    summary.addClass('gdrive-sync-summary');
 
-    const desc = details.createEl('p', {
+    details.createEl('p', {
       text: 'Alternatively, paste tokens from Google OAuth 2.0 Playground.',
       cls: 'setting-item-description',
     });
@@ -165,13 +159,11 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
     const link = linkPara.createEl('a', {
       text: 'Google OAuth 2.0 Playground',
       href: 'https://developers.google.com/oauthplayground',
+      cls: 'gdrive-sync-mb-012',
     });
-    link.style.marginBottom = '12px';
 
     // Instructions
-    const steps = details.createEl('ol');
-    steps.style.fontSize = 'var(--font-small)';
-    steps.style.marginBottom = '12px';
+    const steps = details.createEl('ol', { cls: 'gdrive-sync-font-small gdrive-sync-mb-012' });
     const stepItems = [
       'Click ⚙️ → check "Use your own OAuth credentials" and paste your Client ID',
       'Select "Drive API v3" and scope "https://www.googleapis.com/auth/drive"',
@@ -185,45 +177,32 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
     }
 
     // ── Auto-parse from OAuth Playground response ──
-    const parseHeader = details.createEl('h4', { text: 'Parse from OAuth Playground Response' });
-    parseHeader.style.marginBottom = '4px';
+    new Setting(details).setName('Parse from OAuth Playground Response').setHeading();
 
-    const parseDesc = details.createEl('p', {
+    details.createEl('p', {
       text: 'Paste the full HTTP request/response from the "Exchange authorization code for tokens" step, then click Parse.',
       cls: 'setting-item-description',
     });
 
     let parseRawInput = '';
 
-    const parseTextarea = details.createEl('textarea');
-    parseTextarea.style.width = '100%';
-    parseTextarea.style.minHeight = '160px';
-    parseTextarea.style.fontFamily = 'monospace';
-    parseTextarea.style.fontSize = '11px';
-    parseTextarea.style.marginBottom = '8px';
+    const parseTextarea = details.createEl('textarea', { cls: 'gdrive-sync-parse-textarea' });
     parseTextarea.placeholder = 'Paste the full HTTP request + response here...\n\ne.g.\nPOST /token HTTP/1.1\nHost: oauth2.googleapis.com\n...\n\n{\n  "access_token": "ya29...",\n  "refresh_token": "1//0g...",\n  "expires_in": 3599,\n  "scope": "https://www.googleapis.com/auth/drive",\n  ...\n}';
     parseTextarea.onchange = () => { parseRawInput = parseTextarea.value; };
     parseTextarea.oninput = () => { parseRawInput = parseTextarea.value; };
 
-    const parseBtnRow = details.createEl('div');
-    parseBtnRow.style.display = 'flex';
-    parseBtnRow.style.gap = '8px';
-    parseBtnRow.style.marginBottom = '16px';
+    const parseBtnRow = details.createEl('div', { cls: 'gdrive-sync-btn-row gdrive-sync-mb-016' });
 
     const parseBtn = parseBtnRow.createEl('button', { text: 'Parse & Fill' });
     parseBtn.className = 'mod-cta';
 
-    const parseStatus = parseBtnRow.createEl('span');
-    parseStatus.style.fontSize = 'var(--font-small)';
-    parseStatus.style.alignSelf = 'center';
+    const parseStatus = parseBtnRow.createEl('span', { cls: 'gdrive-sync-font-small' });
 
     // Separator
-    const separator = details.createEl('hr');
-    separator.style.margin = '12px 0';
+    const separator = details.createEl('hr', { cls: 'gdrive-sync-separator' });
 
     // ── Manual input fields ──
-    const manualHeader = details.createEl('h4', { text: 'Or Enter Manually' });
-    manualHeader.style.marginBottom = '4px';
+    new Setting(details).setName('Or Enter Manually').setHeading();
 
     // Client ID input
     new Setting(details)
@@ -243,10 +222,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         textarea.setPlaceholder('ya29.a0A...')
           .setValue(this.manualAccessToken)
           .onChange(val => { this.manualAccessToken = val; });
-        textarea.inputEl.style.width = '100%';
-        textarea.inputEl.style.minHeight = '60px';
-        textarea.inputEl.style.fontFamily = 'monospace';
-        textarea.inputEl.style.fontSize = '12px';
+        textarea.inputEl.addClass('gdrive-sync-token-textarea');
       });
 
     // Refresh Token input
@@ -257,10 +233,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         textarea.setPlaceholder('1//0g...')
           .setValue(this.manualRefreshToken)
           .onChange(val => { this.manualRefreshToken = val; });
-        textarea.inputEl.style.width = '100%';
-        textarea.inputEl.style.minHeight = '40px';
-        textarea.inputEl.style.fontFamily = 'monospace';
-        textarea.inputEl.style.fontSize = '12px';
+        textarea.inputEl.addClass('gdrive-sync-refresh-textarea');
       });
 
     // Expires In input
@@ -275,9 +248,14 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
     // ── Parse logic ──
     parseBtn.onclick = () => {
       const raw = parseRawInput || parseTextarea.value;
+      // Reset status color
+      parseStatus.removeClass('gdrive-sync-text-error');
+      parseStatus.removeClass('gdrive-sync-text-success');
+      parseStatus.removeClass('gdrive-sync-text-warning');
+
       if (!raw) {
         parseStatus.textContent = '⚠️ Please paste the HTTP response first';
-        parseStatus.style.color = 'var(--color-red)';
+        parseStatus.addClass('gdrive-sync-text-error');
         return;
       }
 
@@ -287,7 +265,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
 
       if (!jsonStr) {
         parseStatus.textContent = '⚠️ Could not find JSON body in the response';
-        parseStatus.style.color = 'var(--color-red)';
+        parseStatus.addClass('gdrive-sync-text-error');
         return;
       }
 
@@ -307,7 +285,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         // Validate required fields
         if (!parsedAccessToken) {
           parseStatus.textContent = '⚠️ No access_token found in JSON body';
-          parseStatus.style.color = 'var(--color-red)';
+          parseStatus.addClass('gdrive-sync-text-error');
           return;
         }
 
@@ -323,10 +301,10 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
 
           if (hasDrive) {
             parseStatus.textContent = `✅ Scope: OK${hasDriveFile ? ' (drive + drive.file)' : ' (drive)'}`;
-            parseStatus.style.color = 'var(--color-green)';
+            parseStatus.addClass('gdrive-sync-text-success');
           } else {
             parseStatus.textContent = `⚠️ Scope missing "drive"! Current: ${parsedScope}. Some sync features may not work.`;
-            parseStatus.style.color = 'var(--color-orange)';
+            parseStatus.addClass('gdrive-sync-text-warning');
           }
         }
 
@@ -342,7 +320,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
 
       } catch (e) {
         parseStatus.textContent = `⚠️ Parse error: ${e instanceof Error ? e.message : 'invalid JSON'}`;
-        parseStatus.style.color = 'var(--color-red)';
+        parseStatus.addClass('gdrive-sync-text-error');
       }
     };
 
@@ -375,7 +353,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
   }
 
   private renderSyncConfigSection(containerEl: HTMLElement): void {
-    containerEl.createEl('h2', { text: 'Sync Settings' });
+    new Setting(containerEl).setName('Sync Settings').setHeading();
 
     const config = this.settingsManager.getConfig();
 
@@ -402,7 +380,6 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         slider
           .setLimits(5, 120, 5)
           .setValue(config.sync.intervalMinutes)
-          .setDynamicTooltip()
           .onChange(async (value: number) => {
             config.sync.intervalMinutes = value;
             await this.settingsManager.saveConfig(config);
@@ -423,14 +400,10 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
   }
 
   private renderMappingsSection(containerEl: HTMLElement): void {
-    const headingRow = containerEl.createDiv();
-    headingRow.style.display = 'flex';
-    headingRow.style.alignItems = 'center';
-    headingRow.style.justifyContent = 'space-between';
+    const headingRow = containerEl.createDiv({ cls: 'gdrive-sync-mapping-heading' });
     headingRow.createEl('h2', { text: 'Directory Mappings' });
 
-    const testAllBtn = headingRow.createEl('button', { text: 'Test All' });
-    testAllBtn.style.marginBottom = '12px';
+    const testAllBtn = headingRow.createEl('button', { text: 'Test All', cls: 'gdrive-sync-mb-012' });
 
     const config = this.settingsManager.getConfig();
 
@@ -450,9 +423,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         .setDesc(`→ ${mapping.driveFolderPath}`);
 
       // Status indicator (red/green icon)
-      const statusSpan = setting.descEl.createEl('span');
-      statusSpan.style.marginLeft = '10px';
-      statusSpan.style.fontWeight = 'bold';
+      const statusSpan = setting.descEl.createEl('span', { cls: 'gdrive-sync-status-badge' });
       statusIndicators.push(statusSpan);
 
       setting.addToggle(toggle => {
@@ -482,7 +453,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
 
       setting.addButton(btn => {
         btn.setIcon('trash')
-          .setWarning()
+          .setDestructive()
           .onClick(async () => {
             config.mappings.splice(index, 1);
             await this.settingsManager.saveConfig(config);
@@ -510,19 +481,23 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
       for (let i = 0; i < config.mappings.length; i++) {
         if (!config.mappings[i].enabled) continue;
         const statusEl = statusIndicators[i];
+        // Clear previous color classes
+        statusEl.removeClass('gdrive-sync-text-muted');
+        statusEl.removeClass('gdrive-sync-text-success');
+        statusEl.removeClass('gdrive-sync-text-error');
+
         try {
           statusEl.textContent = ' ⏳';
-          statusEl.style.color = 'var(--text-muted)';
+          statusEl.addClass('gdrive-sync-text-muted');
           const file = await this.plugin.driveClient.getFile(config.mappings[i].driveFolderId);
-          const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
           statusEl.textContent = ' ✓';
-          statusEl.style.color = 'var(--color-green)';
+          statusEl.addClass('gdrive-sync-text-success');
           statusEl.title = 'Folder verified';
           passed++;
         } catch (e: any) {
           const errMsg = e.message || String(e);
           statusEl.textContent = ' ✗';
-          statusEl.style.color = 'var(--color-red)';
+          statusEl.addClass('gdrive-sync-text-error');
           statusEl.title = errMsg; // Show error as tooltip on hover
           // Also append short error hint to the mapping description
           const shortErr = errMsg.length > 60 ? errMsg.substring(0, 57) + '...' : errMsg;
@@ -571,7 +546,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
   }
 
   private renderIgnoreSection(containerEl: HTMLElement): void {
-    containerEl.createEl('h2', { text: 'Ignore Rules' });
+    new Setting(containerEl).setName('Ignore Rules').setHeading();
 
     const config = this.settingsManager.getConfig();
 

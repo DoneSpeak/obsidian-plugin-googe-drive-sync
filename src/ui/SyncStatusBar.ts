@@ -16,26 +16,31 @@ export class SyncStatusBar {
   }
 
   update(state: SyncStatusState): void {
+    // Remove all color classes first
+    this.statusBarItem.removeClass('gdrive-sync-text-accent');
+    this.statusBarItem.removeClass('gdrive-sync-text-warning');
+    this.statusBarItem.removeClass('gdrive-sync-text-error');
+    this.statusBarItem.removeClass('gdrive-sync-text-muted');
+
     switch (state.type) {
       case 'idle':
         this.statusBarItem.setText(`☁️ GDrive: idle (${state.lastSync})`);
-        this.statusBarItem.style.color = '';
         break;
       case 'syncing':
         this.statusBarItem.setText(`☁️ GDrive: syncing... ${state.current}/${state.total}`);
-        this.statusBarItem.style.color = 'var(--text-accent)';
+        this.statusBarItem.addClass('gdrive-sync-text-accent');
         break;
       case 'conflict':
         this.statusBarItem.setText(`☁️ GDrive: ⚠️ ${state.count} conflicts`);
-        this.statusBarItem.style.color = 'var(--text-warning)';
+        this.statusBarItem.addClass('gdrive-sync-text-warning');
         break;
       case 'error':
         this.statusBarItem.setText(`☁️ GDrive: ❌ ${state.message}`);
-        this.statusBarItem.style.color = 'var(--text-error)';
+        this.statusBarItem.addClass('gdrive-sync-text-error');
         break;
       case 'unauthenticated':
         this.statusBarItem.setText('☁️ GDrive: sign in required');
-        this.statusBarItem.style.color = 'var(--text-muted)';
+        this.statusBarItem.addClass('gdrive-sync-text-muted');
         break;
     }
   }
