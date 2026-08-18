@@ -1,0 +1,10 @@
+node_modules/
+main.js
+main.js.map
+dist/
+.DS_Store
+*.log
+*.obsidian/plugins/google-drive-sync/data.json
+sample/test-obsidian-vault
+.superpowers/
+.claude/
