@@ -1,4 +1,4 @@
-import { Plugin, normalizePath, Notice, Modal } from 'obsidian';
+import { Plugin, normalizePath, Notice, Modal, DataAdapter } from 'obsidian';
 import { SettingsManager } from './settings/SettingsManager';
 import { GoogleDriveSyncSettingTab } from './settings/SettingsTab';
 import { OAuthClient } from './auth/OAuthClient';
@@ -26,14 +26,13 @@ export default class GoogleDriveSyncPlugin extends Plugin {
   private syncTimer: number | null = null;
 
   async onload(): Promise<void> {
-    console.log('GDrive Sync: plugin loading, version=' + this.manifest.version);
-
     // Initialize modules
     const pluginDir = normalizePath(`${this.manifest.dir || ''}`);
-    const vaultPath = (this.app.vault.adapter as any).getBasePath?.() || '';
+    const vaultAdapter = this.app.vault.adapter;
+    const vaultPath = this.getVaultBasePath(vaultAdapter);
 
     // Settings
-    this.settingsManager = new SettingsManager(this.app.vault.adapter, pluginDir);
+    this.settingsManager = new SettingsManager(vaultAdapter, pluginDir);
     await this.settingsManager.loadConfig();
 
     // Auth
@@ -104,22 +103,19 @@ export default class GoogleDriveSyncPlugin extends Plugin {
     this.updateStatusBar();
   }
 
-  async onunload(): Promise<void> {
+  onunload(): void {
     this.stopAutoSync();
     this.syncStatusBar.dispose();
-    console.log('Unloading GDrive Sync plugin');
   }
 
   async startOAuthFlow(): Promise<void> {
-    const config = this.settingsManager.getConfig();
-
     // Show prompt for Client ID
     const clientId = await this.promptForClientId();
     if (!clientId) return;
 
     try {
       const deviceCode = await this.oauthClient.startDeviceCodeFlow(clientId);
-      await this.showDeviceCodeModal(deviceCode.verification_url, deviceCode.user_code);
+      this.showDeviceCodeModal(deviceCode.verification_url, deviceCode.user_code);
 
       const token = await this.oauthClient.pollForToken(
         clientId,
@@ -136,9 +132,9 @@ export default class GoogleDriveSyncPlugin extends Plugin {
 
       new Notice('Successfully connected to Google Drive!');
       this.updateStatusBar();
-    } catch (e: any) {
-      new Notice(`Authentication failed: ${e.message}`);
-      console.error('OAuth error:', e);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      new Notice(`Authentication failed: ${message}`);
     }
   }
 
@@ -211,7 +207,7 @@ export default class GoogleDriveSyncPlugin extends Plugin {
     });
   }
 
-  private async showDeviceCodeModal(verificationUrl: string, userCode: string): Promise<void> {
+  private showDeviceCodeModal(verificationUrl: string, userCode: string): void {
     const modal = new Modal(this.app);
     modal.titleEl.setText('Google Drive Authentication');
 
@@ -220,14 +216,14 @@ export default class GoogleDriveSyncPlugin extends Plugin {
     });
 
     modal.contentEl.createEl('p', { text: 'Step 1: Visit this URL:' });
-    const urlEl = modal.contentEl.createEl('a', {
+    modal.contentEl.createEl('a', {
       text: verificationUrl,
       href: verificationUrl,
       cls: 'gdrive-sync-device-url',
     });
 
     modal.contentEl.createEl('p', { text: 'Step 2: Enter this code:' });
-    const codeEl = modal.contentEl.createEl('div', { text: userCode, cls: 'gdrive-sync-device-code' });
+    modal.contentEl.createEl('div', { text: userCode, cls: 'gdrive-sync-device-code' });
 
     modal.contentEl.createEl('p', {
       text: 'Waiting for authorization...',
@@ -243,7 +239,7 @@ export default class GoogleDriveSyncPlugin extends Plugin {
 
     const intervalMs = config.sync.intervalMinutes * 60 * 1000;
     this.syncTimer = window.setInterval(() => {
-      this.autoSyncTick();
+      void this.autoSyncTick();
     }, intervalMs);
   }
 
@@ -268,12 +264,21 @@ export default class GoogleDriveSyncPlugin extends Plugin {
     if (!config.auth.accessToken) {
       this.syncStatusBar.update({ type: 'unauthenticated' });
     } else {
-      this.syncStateManager.loadState().then(state => {
+      void this.syncStateManager.loadState().then(state => {
         const lastSync = state.lastSyncTime
           ? new Date(state.lastSyncTime).toLocaleTimeString()
           : 'never';
         this.syncStatusBar.update({ type: 'idle', lastSync });
       });
+    }
+  }
+
+  /** Get the vault's base filesystem path from the adapter, if available. */
+  private getVaultBasePath(adapter: DataAdapter): string {
+    try {
+      return (adapter as DataAdapter & { getBasePath?: () => string }).getBasePath?.() || '';
+    } catch {
+      return '';
     }
   }
 }

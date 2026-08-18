@@ -50,8 +50,6 @@ export class ConflictDetector {
       const localChanged = localFile!.md5 !== baselineMd5;
       const driveChanged = driveFile!.md5Checksum !== baselineMd5;
 
-      console.log(`GDrive Sync: compare "${localPath}" localMd5="${localFile!.md5.substring(0,12)}" driveMd5="${driveFile!.md5Checksum.substring(0,12)}" baselineMd5="${baselineMd5.substring(0,12)}" → localChanged=${localChanged} driveChanged=${driveChanged}`);
-
       if (!localChanged && !driveChanged) {
         continue; // No changes
       }

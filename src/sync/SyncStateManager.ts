@@ -19,11 +19,12 @@ export class SyncStateManager {
       const exists = await this.vault.adapter.exists(this.statePath);
       if (exists) {
         const content = await this.vault.adapter.read(this.statePath);
-        this.state = JSON.parse(content);
+        this.state = JSON.parse(content) as SyncState;
         return this.state!;
       }
-    } catch (e) {
-      console.error('Failed to load sync state:', e);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error('Failed to load sync state:', message);
     }
 
     // Return default state
@@ -40,8 +41,9 @@ export class SyncStateManager {
     this.state = state;
     try {
       await this.vault.adapter.write(this.statePath, JSON.stringify(state, null, 2));
-    } catch (e) {
-      console.error('Failed to save sync state:', e);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error('Failed to save sync state:', message);
     }
   }
 

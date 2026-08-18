@@ -106,7 +106,7 @@ export class SyncPreviewModal extends Modal {
         label.addClass('gdrive-sync-flex-1');
 
         if (action.localFile) {
-          const subtitle = itemRow.createSpan({
+          itemRow.createSpan({
             text: `modified: ${new Date(action.localFile.modifiedTime).toLocaleTimeString()}`,
             cls: 'gdrive-sync-preview-subtitle',
           });

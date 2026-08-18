@@ -61,7 +61,7 @@ export class ConflictResolutionModal extends Modal {
     };
 
     // Warning text
-    const warning = container.createEl('p', {
+    container.createEl('p', {
       text: 'Both versions have been modified since the last sync. Choose which version to keep, or keep both (the local file will be renamed).',
       cls: 'gdrive-sync-warning-text',
     });

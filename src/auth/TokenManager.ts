@@ -97,8 +97,8 @@ export class TokenManager {
       });
 
       return true;
-    } catch (e) {
-      console.error('Token refresh failed:', e);
+    } catch (e: unknown) {
+      console.error('Token refresh failed:', e instanceof Error ? e.message : String(e));
       new Notice('Google Drive auth expired. Please sign in again.');
       return false;
     }

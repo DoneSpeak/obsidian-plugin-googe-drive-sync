@@ -107,7 +107,7 @@ export const DEFAULT_CONFIG: PluginConfig = {
   mappings: [],
   ignore: {
     patterns: ['.DS_Store', '*.tmp'],
-    folders: ['.trash', '.obsidian'],
+    folders: ['.trash'],
     ignoreGitignore: true,
   },
 };

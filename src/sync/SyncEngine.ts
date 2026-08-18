@@ -1,4 +1,4 @@
-import { Vault, App, Notice, normalizePath } from 'obsidian';
+import { Vault, App, Notice, normalizePath, DataAdapter } from 'obsidian';
 import { DriveClient } from '../drive/DriveClient';
 import { DriveChanges } from '../drive/DriveChanges';
 import { SyncStateManager } from './SyncStateManager';
@@ -8,17 +8,16 @@ import { TokenManager } from '../auth/TokenManager';
 import { GitIntegration } from '../git/GitIntegration';
 import { SyncPreviewModal } from '../ui/SyncPreviewModal';
 import { ConflictResolutionModal } from '../ui/ConflictResolutionModal';
-import { SyncStatusBar, SyncStatusState } from '../ui/SyncStatusBar';
+import { SyncStatusBar } from '../ui/SyncStatusBar';
 import { FileUtils } from '../utils/FileUtils';
 import { IgnoreUtils } from '../utils/IgnoreUtils';
 import {
   DriveFile,
   FileInfo,
-  SyncPlan,
   SyncAction,
   SyncResult,
-  SyncActionType,
   PluginConfig,
+  SyncState,
 } from '../types';
 
 // ── Concurrency Helper ──
@@ -58,7 +57,7 @@ export class SyncEngine {
     private gitIntegration: GitIntegration,
     private statusBar: SyncStatusBar
   ) {
-    this.vaultPath = (this.vault.adapter as any).getBasePath?.() || '';
+    this.vaultPath = this.getVaultBasePath(vault.adapter);
   }
 
   async sync(): Promise<SyncResult> {
@@ -100,13 +99,6 @@ export class SyncEngine {
       // Step 3: Gather local files
       this.statusBar.update({ type: 'syncing', current: 3, total: 5 });
       const localFiles = await this.gatherLocalFiles(config);
-      console.log(`GDrive Sync: found ${localFiles.size} local files`);
-      // Log first 3 file MD5s for debugging
-      let logged = 0;
-      for (const [path, info] of localFiles) {
-        if (logged++ >= 3) break;
-        console.log(`GDrive Sync: local file "${path}" md5="${info.md5}" size=${info.size}`);
-      }
 
       // Step 4: Gather Drive files
       this.statusBar.update({ type: 'syncing', current: 4, total: 5 });
@@ -118,7 +110,6 @@ export class SyncEngine {
         driveError = e instanceof Error ? e : new Error(String(e));
         driveFiles = new Map();
       }
-      console.log(`GDrive Sync: found ${driveFiles.size} Drive files`);
 
       // If Drive listing failed, stop sync to avoid misleading upload-all behavior
       if (driveError) {
@@ -126,7 +117,7 @@ export class SyncEngine {
       }
 
       if (driveFiles.size === 0 && localFiles.size > 0) {
-        console.warn('GDrive Sync: 0 Drive files found — check folder ID and permissions');
+        // 0 Drive files found — check folder ID and permissions
       }
 
       // Step 5: Build sync plan
@@ -139,7 +130,6 @@ export class SyncEngine {
 
       if (syncPlan.actions.length === 0) {
         new Notice('Everything is up to date');
-        console.log('GDrive Sync: sync plan has 0 actions — no changes detected');
         result.success = true;
         result.endTime = new Date().toISOString();
         this.statusBar.update({ type: 'idle', lastSync: new Date().toLocaleTimeString() });
@@ -179,12 +169,12 @@ export class SyncEngine {
       );
 
       this.statusBar.update({ type: 'idle', lastSync: new Date().toLocaleTimeString() });
-    } catch (e: any) {
-      result.errors.push(e.message);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      result.errors.push(message);
       result.endTime = new Date().toISOString();
-      new Notice(`Sync failed: ${e.message}`);
-      this.statusBar.update({ type: 'error', message: e.message });
-      console.error('Sync error:', e);
+      new Notice(`Sync failed: ${message}`);
+      this.statusBar.update({ type: 'error', message });
     }
 
     return result;
@@ -301,12 +291,12 @@ export class SyncEngine {
       );
 
       this.statusBar.update({ type: 'idle', lastSync: new Date().toLocaleTimeString() });
-    } catch (e: any) {
-      result.errors.push(e.message);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      result.errors.push(message);
       result.endTime = new Date().toISOString();
-      new Notice(`Pull failed: ${e.message}`);
-      this.statusBar.update({ type: 'error', message: e.message });
-      console.error('Pull error:', e);
+      new Notice(`Pull failed: ${message}`);
+      this.statusBar.update({ type: 'error', message });
     }
 
     return result;
@@ -336,7 +326,9 @@ export class SyncEngine {
           files.set(key, info);
         }
       } catch (e) {
-        console.warn(`Failed to scan local path ${mapping.localPath}:`, e);
+        // Failed to scan local path — log and continue
+        const message = e instanceof Error ? e.message : String(e);
+        console.warn(`Failed to scan local path ${mapping.localPath}: ${message}`);
       }
     }
 
@@ -359,7 +351,7 @@ export class SyncEngine {
         );
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        console.warn(`Failed to list Drive folder ${mapping.driveFolderId}:`, e);
+        console.warn(`Failed to list Drive folder ${mapping.driveFolderId}: ${msg}`);
         if (!firstError) firstError = e instanceof Error ? e : new Error(msg);
       }
     }
@@ -453,8 +445,9 @@ export class SyncEngine {
             result.deleted++;
             break;
         }
-      } catch (e: any) {
-        result.errors.push(`Failed to sync ${action.localPath}: ${e.message}`);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        result.errors.push(`Failed to sync ${action.localPath}: ${message}`);
         console.error(`Sync action failed for ${action.localPath}:`, e);
       } finally {
         completed++;
@@ -474,7 +467,7 @@ export class SyncEngine {
       data = await FileUtils.readBinary(this.vault, action.localPath);
     } else {
       const content = await FileUtils.readFileContent(this.vault, action.localPath);
-      data = new TextEncoder().encode(content).buffer as ArrayBuffer;
+      data = new TextEncoder().encode(content).buffer;
     }
 
     const mimeType = isBinary
@@ -565,13 +558,23 @@ export class SyncEngine {
 
   private async updateSyncState(
     actions: SyncAction[],
-    syncState: any,
+    syncState: SyncState,
     config: PluginConfig
   ): Promise<void> {
     for (const action of actions) {
       if (action.type === 'conflict' && !action.resolved) continue;
 
-      const fileState = syncState.files[action.localPath] || {};
+      const fileState = syncState.files[action.localPath] || {
+        localPath: '',
+        driveFileId: '',
+        driveFileName: '',
+        localMd5: '',
+        driveMd5: '',
+        localModifiedTime: '',
+        driveModifiedTime: '',
+        lastSyncMd5: '',
+        lastSyncTime: '',
+      };
       fileState.localPath = action.localPath;
 
       if (action.driveFile) {
@@ -662,10 +665,18 @@ export class SyncEngine {
           config.ignore.folders.push(folder);
         }
       }
-
-      console.log(`GDrive Sync: merged ${parsed.patterns.length} patterns and ${parsed.folders.length} folders from .gitignore`);
     } catch (e) {
-      console.warn('GDrive Sync: failed to read .gitignore:', e);
+      const message = e instanceof Error ? e.message : String(e);
+      console.warn('GDrive Sync: failed to read .gitignore:', message);
+    }
+  }
+
+  /** Get the vault's base filesystem path from the adapter, if available. */
+  private getVaultBasePath(adapter: DataAdapter): string {
+    try {
+      return (adapter as DataAdapter & { getBasePath?: () => string }).getBasePath?.() || '';
+    } catch {
+      return '';
     }
   }
 }

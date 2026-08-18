@@ -1,11 +1,11 @@
 import { normalizePath, Vault } from 'obsidian';
 import { FileInfo } from '../types';
+import { createHash } from 'crypto';
 
 export class FileUtils {
   static async computeMD5(vault: Vault, filePath: string): Promise<string> {
     try {
       const content = await vault.adapter.readBinary(normalizePath(filePath));
-      const { createHash } = require('crypto');
       const hash = createHash('md5').update(new Uint8Array(content)).digest('hex');
       return hash;
     } catch {
@@ -14,7 +14,6 @@ export class FileUtils {
   }
 
   static computeMD5FromString(content: string): string {
-    const { createHash } = require('crypto');
     const hash = createHash('md5').update(content).digest('hex');
     return hash;
   }

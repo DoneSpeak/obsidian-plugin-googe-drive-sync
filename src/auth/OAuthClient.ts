@@ -35,7 +35,8 @@ export class OAuthClient {
     // Polling loop: runs until we get a token or an error response.
     // Google's device code flow requires polling the token endpoint
     // at a specified interval until the user completes authorization.
-    // eslint-disable-next-line no-constant-condition
+    // This is an intentional infinite loop — it exits via return or throw.
+    // eslint-disable-next-line no-constant-condition -- Intentional: exits via return or throw
     while (true) {
       await this.sleep(interval * 1000);
 
@@ -51,7 +52,7 @@ export class OAuthClient {
           return response.json as TokenResponse;
         }
 
-        const data = response.json;
+        const data = response.json as Record<string, unknown>;
         if (data.error === 'authorization_pending') {
           // Still waiting for user — continue polling
           continue;
@@ -64,11 +65,13 @@ export class OAuthClient {
         } else if (data.error === 'expired_token') {
           throw new Error('Device code expired. Please start again.');
         } else {
-          throw new Error(`Token polling failed: ${data.error}`);
+          throw new Error(`Token polling failed: ${String(data.error)}`);
         }
       } catch (e) {
-        if (e.message?.includes('authorization_pending') || e.message?.includes('slow_down')) {
-          continue;
+        if (e instanceof Error) {
+          if (e.message.includes('authorization_pending') || e.message.includes('slow_down')) {
+            continue;
+          }
         }
         throw e;
       }

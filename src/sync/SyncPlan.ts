@@ -1,4 +1,4 @@
-import { SyncPlan, SyncAction, SyncActionType } from '../types';
+import { SyncPlan, SyncAction, SyncActionType, DriveFile, FileInfo } from '../types';
 
 export function createSyncPlan(): SyncPlan {
   return {
@@ -11,8 +11,8 @@ export function addAction(
   plan: SyncPlan,
   type: SyncActionType,
   localPath: string,
-  localFile?: any,
-  driveFile?: any
+  localFile?: FileInfo | undefined,
+  driveFile?: DriveFile | undefined
 ): void {
   const action: SyncAction = {
     type,

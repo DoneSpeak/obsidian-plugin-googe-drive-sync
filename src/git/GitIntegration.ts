@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import { SyncConfig } from '../types';
 
 export class GitIntegration {
@@ -68,14 +69,13 @@ export class GitIntegration {
   }
 
   private async execGit(args: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-    const { exec } = require('child_process');
     return new Promise((resolve) => {
       exec(
         `git ${args}`,
         { cwd: this.vaultPath },
         (error: Error | null, stdout: string, stderr: string) => {
           resolve({
-            exitCode: error ? (error as any).code || 1 : 0,
+            exitCode: error ? Number((error as NodeJS.ErrnoException).code) || 1 : 0,
             stdout: stdout.trim(),
             stderr: stderr.trim(),
           });

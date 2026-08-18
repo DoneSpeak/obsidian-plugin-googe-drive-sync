@@ -13,7 +13,7 @@ class EditMappingModal extends Modal {
     private mapping: DirectoryMapping,
     private index: number,
     private config: { mappings: DirectoryMapping[] },
-    private saveConfig: (config: any) => Promise<void>,
+    private saveConfig: (config: Record<string, unknown>) => Promise<void>,
     private onSaved: () => void
   ) {
     super(app);
@@ -64,7 +64,7 @@ class EditMappingModal extends Modal {
         driveFolderPath: this.newDriveFolderId,
         enabled: this.mapping.enabled,
       };
-      await this.saveConfig(this.config);
+      await this.saveConfig(this.config as Record<string, unknown>);
       new Notice(`Mapping ${this.index + 1} updated`);
       this.close();
       this.onSaved();
@@ -124,7 +124,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
           btn.setButtonText('Sign in with Google')
             .setCta()
             .onClick(() => {
-              this.plugin.startOAuthFlow();
+              void this.plugin.startOAuthFlow();
             });
         }
       });
@@ -156,7 +156,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
     // Link to OAuth Playground
     const linkPara = details.createEl('p');
     linkPara.createEl('span', { text: 'Get tokens from: ' });
-    const link = linkPara.createEl('a', {
+    linkPara.createEl('a', {
       text: 'Google OAuth 2.0 Playground',
       href: 'https://developers.google.com/oauthplayground',
       cls: 'gdrive-sync-mb-012',
@@ -197,9 +197,6 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
     parseBtn.className = 'mod-cta';
 
     const parseStatus = parseBtnRow.createEl('span', { cls: 'gdrive-sync-font-small' });
-
-    // Separator
-    const separator = details.createEl('hr', { cls: 'gdrive-sync-separator' });
 
     // ── Manual input fields ──
     new Setting(details).setName('Or Enter Manually').setHeading();
@@ -270,13 +267,13 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
       }
 
       try {
-        const data = JSON.parse(jsonStr);
+        const data = JSON.parse(jsonStr) as Record<string, unknown>;
 
         // Extract fields
-        const parsedAccessToken = data.access_token || '';
-        const parsedRefreshToken = data.refresh_token || '';
-        const parsedExpiresIn = data.expires_in || 3600;
-        const parsedScope = data.scope || '';
+        const parsedAccessToken = String(data.access_token || '');
+        const parsedRefreshToken = String(data.refresh_token || '');
+        const parsedExpiresIn = Number(data.expires_in) || 3600;
+        const parsedScope = String(data.scope || '');
 
         // Extract client_id from the request (POST line)
         const clientIdMatch = raw.match(/client_id=([^&\s]+)/);
@@ -318,8 +315,9 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         this.display();
         new Notice('Fields auto-filled from response! Check values and click Save Tokens.');
 
-      } catch (e) {
-        parseStatus.textContent = `⚠️ Parse error: ${e instanceof Error ? e.message : 'invalid JSON'}`;
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'invalid JSON';
+        parseStatus.textContent = `⚠️ Parse error: ${message}`;
         parseStatus.addClass('gdrive-sync-text-error');
       }
     };
@@ -353,7 +351,7 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
   }
 
   private renderSyncConfigSection(containerEl: HTMLElement): void {
-    new Setting(containerEl).setName('Sync Settings').setHeading();
+    new Setting(containerEl).setName('Sync Configuration').setHeading();
 
     const config = this.settingsManager.getConfig();
 
@@ -400,12 +398,11 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
   }
 
   private renderMappingsSection(containerEl: HTMLElement): void {
-    const headingRow = containerEl.createDiv({ cls: 'gdrive-sync-mapping-heading' });
-    headingRow.createEl('h2', { text: 'Directory Mappings' });
-
-    const testAllBtn = headingRow.createEl('button', { text: 'Test All', cls: 'gdrive-sync-mb-012' });
+    new Setting(containerEl).setName('Directory Mappings').setHeading();
 
     const config = this.settingsManager.getConfig();
+
+    const testAllBtn = containerEl.createEl('button', { text: 'Test All', cls: 'gdrive-sync-mb-012' });
 
     if (config.mappings.length === 0) {
       containerEl.createEl('p', {
@@ -443,8 +440,8 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
               this.app,
               mapping,
               index,
-              config as any,
-              async (cfg) => this.settingsManager.saveConfig(cfg),
+              config,
+              async (cfg) => this.settingsManager.saveConfig(cfg as any),
               () => this.display()
             );
             modal.open();
@@ -453,12 +450,14 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
 
       setting.addButton(btn => {
         btn.setIcon('trash')
-          .setDestructive()
           .onClick(async () => {
             config.mappings.splice(index, 1);
             await this.settingsManager.saveConfig(config);
             this.display();
           });
+        // Apply destructive styling via CSS class instead of setDestructive()
+        // for compatibility with the declared minAppVersion
+        btn.buttonEl.addClass('mod-destructive');
       });
     });
 
@@ -489,16 +488,16 @@ export class GoogleDriveSyncSettingTab extends PluginSettingTab {
         try {
           statusEl.textContent = ' ⏳';
           statusEl.addClass('gdrive-sync-text-muted');
-          const file = await this.plugin.driveClient.getFile(config.mappings[i].driveFolderId);
+          await this.plugin.driveClient.getFile(config.mappings[i].driveFolderId);
           statusEl.textContent = ' ✓';
           statusEl.addClass('gdrive-sync-text-success');
           statusEl.title = 'Folder verified';
           passed++;
-        } catch (e: any) {
-          const errMsg = e.message || String(e);
+        } catch (e: unknown) {
+          const errMsg = e instanceof Error ? e.message : String(e);
           statusEl.textContent = ' ✗';
           statusEl.addClass('gdrive-sync-text-error');
-          statusEl.title = errMsg; // Show error as tooltip on hover
+          statusEl.title = errMsg;
           // Also append short error hint to the mapping description
           const shortErr = errMsg.length > 60 ? errMsg.substring(0, 57) + '...' : errMsg;
           statusEl.textContent = ` ✗ ${shortErr}`;

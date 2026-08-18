@@ -3,6 +3,21 @@ import { ChangesResult, DriveFile } from '../types';
 import { TokenManager } from '../auth/TokenManager';
 import { driveFileFromJson } from './DriveFile';
 
+/** Raw JSON shape of a single change resource from the Drive API. */
+interface ChangeResourceJson {
+  type?: string;
+  fileId?: string;
+  removed?: boolean;
+  file?: Record<string, unknown>;
+}
+
+/** Raw JSON shape of the changes list response. */
+interface ChangesListJson {
+  changes?: ChangeResourceJson[];
+  newStartPageToken?: string;
+  nextPageToken?: string;
+}
+
 export class DriveChanges {
   private static readonly API_BASE = 'https://www.googleapis.com/drive/v3';
 
@@ -18,7 +33,8 @@ export class DriveChanges {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    return response.json.startPageToken;
+    const data = response.json as { startPageToken?: string };
+    return data.startPageToken || '';
   }
 
   async getChanges(pageToken: string): Promise<ChangesResult> {
@@ -32,7 +48,6 @@ export class DriveChanges {
     });
 
     const allChanges: ChangesResult['changes'] = [];
-    let currentPageToken = pageToken;
     let newStartPageToken = '';
     let nextPageToken: string | undefined;
 
@@ -43,7 +58,7 @@ export class DriveChanges {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const data = response.json;
+      const data = response.json as ChangesListJson;
       if (data.changes) {
         for (const change of data.changes) {
           const file: DriveFile | undefined = change.file
@@ -54,14 +69,13 @@ export class DriveChanges {
             type: file?.mimeType === 'application/vnd.google-apps.folder' ? 'folder' : 'file',
             file,
             removed: change.removed || false,
-            fileId: change.fileId,
+            fileId: change.fileId || '',
           });
         }
       }
 
       newStartPageToken = data.newStartPageToken || '';
       nextPageToken = data.nextPageToken;
-      currentPageToken = nextPageToken || '';
     } while (nextPageToken);
 
     return {

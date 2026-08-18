@@ -3,6 +3,15 @@ import { DriveFile } from '../types';
 import { TokenManager } from '../auth/TokenManager';
 import { driveFileFromJson } from './DriveFile';
 
+/** Minimal shape of a Drive API file resource used in list responses. */
+interface DriveFileListJson {
+  files: Array<Record<string, unknown>>;
+  nextPageToken?: string;
+}
+
+/** Minimal shape of a single Drive API file resource. */
+type DriveFileJson = Record<string, unknown>;
+
 export class DriveClient {
   private static readonly API_BASE = 'https://www.googleapis.com/drive/v3';
   private static readonly UPLOAD_BASE = 'https://www.googleapis.com/upload/drive/v3';
@@ -28,13 +37,13 @@ export class DriveClient {
       params.append('corpora', 'allDrives');
       if (pageToken) params.set('pageToken', pageToken);
 
-      const data = await this.apiRequest<{ files: any[]; nextPageToken?: string }>(
+      const data = await this.apiRequest<DriveFileListJson>(
         `${DriveClient.API_BASE}/files?${params.toString()}`
       );
 
       if (data.files) {
         for (const f of data.files) {
-          files.push(driveFileFromJson(f));
+          files.push(driveFileFromJson(f as DriveFileJson));
         }
       }
       pageToken = data.nextPageToken;
@@ -48,7 +57,7 @@ export class DriveClient {
       fields: 'id,name,mimeType,md5Checksum,modifiedTime,size,parents,trashed',
     });
     params.append('supportsAllDrives', 'true');
-    const data = await this.apiRequest<any>(
+    const data = await this.apiRequest<DriveFileJson>(
       `${DriveClient.API_BASE}/files/${fileId}?${params.toString()}`
     );
     return driveFileFromJson(data);
@@ -109,7 +118,7 @@ export class DriveClient {
       throw new Error(`Upload failed: ${uploadResponse.status} ${uploadResponse.text}`);
     }
 
-    return driveFileFromJson(uploadResponse.json);
+    return driveFileFromJson(uploadResponse.json as DriveFileJson);
   }
 
   async updateFile(
@@ -152,7 +161,7 @@ export class DriveClient {
       throw new Error(`Update failed: ${uploadResponse.status} ${uploadResponse.text}`);
     }
 
-    return driveFileFromJson(uploadResponse.json);
+    return driveFileFromJson(uploadResponse.json as DriveFileJson);
   }
 
   async deleteFile(fileId: string): Promise<void> {
@@ -160,7 +169,7 @@ export class DriveClient {
   }
 
   async createFolder(name: string, parentFolderId: string): Promise<DriveFile> {
-    const data = await this.apiRequest<any>(
+    const data = await this.apiRequest<DriveFileJson>(
       `${DriveClient.API_BASE}/files`,
       'POST',
       {
@@ -172,10 +181,10 @@ export class DriveClient {
     return driveFileFromJson(data);
   }
 
-  private async apiRequest<T>(
+  private async apiRequest<T = DriveFileJson>(
     url: string,
     method: string = 'GET',
-    body?: any
+    body?: Record<string, unknown>
   ): Promise<T> {
     const token = await this.tokenManager.getAccessToken();
     if (!token) throw new Error('Not authenticated');
