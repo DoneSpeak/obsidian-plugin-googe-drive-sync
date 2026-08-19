@@ -6,7 +6,7 @@ Synchronize your Obsidian vault with Google Drive. Bidirectional sync with confl
 
 - **Bidirectional Sync** — Keep your vault and Google Drive in sync
 - **Pull Only** — One-way download from Drive, skip local uploads
-- **Conflict Resolution** — Visual diff, choose local/drive/both per file
+- **Conflict Resolution** — Compare local and Drive versions, keep local / Drive / both per file
 - **Sync Preview** — Review all changes before executing
 - **Multiple Directory Mappings** — Sync different vault folders to different Drive folders
 - **Shared Drive Support** — Works with Google Shared Drives
@@ -19,13 +19,13 @@ Synchronize your Obsidian vault with Google Drive. Bidirectional sync with confl
 ### From Obsidian Community Plugins (pending)
 
 1. Open **Settings** → **Community Plugins** → **Browse**
-2. Search for "GDrive Sync"
+2. Search for "OmniSync GDrive"
 3. Tap **Install** then **Enable**
 
 ### Manual Installation
 
-1. Download the latest `gdrive-sync.zip` from the [releases page](https://github.com/your-repo/gdrive-sync/releases)
-2. Unzip into your vault's `.obsidian/plugins/gdrive-sync/` folder
+1. Download the latest `gdrive-sync.zip` from the [releases page](https://github.com/DoneSpeak/obsidian-plugin-googe-drive-sync/releases)
+2. Unzip into your vault's `.obsidian/plugins/gdrive-bisync/` folder (the folder name must match the plugin ID)
 3. Enable the plugin in **Settings** → **Community Plugins**
 
 ## Setup
@@ -38,22 +38,24 @@ Synchronize your Obsidian vault with Google Drive. Bidirectional sync with confl
 4. Go to **APIs & Services** → **Credentials**
 5. Click **Create Credentials** → **OAuth 2.0 Client ID**
    - Application type: **Desktop app**
-   - Add `https://developers.google.com/oauthplayground` to authorized redirect URIs
+   - **Only if you plan to use the manual OAuth Playground token method:** add `https://developers.google.com/oauthplayground` to **Authorized redirect URIs**. The standard device-code flow does not require a redirect URI.
 6. Copy the **Client ID**
 
 ### 2. Configure the Plugin
 
-1. Open **Settings** → **GDrive Sync**
-2. Paste your **Client ID** in the OAuth section
-3. Click **Sign in with Google** and follow the device code flow
-4. (Optional) Click **Test** to verify the connection
+1. Open **Settings** → **OmniSync GDrive**
+2. Click **Sign in with Google**
+3. Enter your **Client ID** when prompted and follow the device code flow
+4. After signing in, the status bar shows `☁️ GDrive: idle`. Use **Test All** in the **Directory Mappings** section to verify folder access
+
+> **Alternative:** the **Manual Token Setup (OAuth Playground)** section in settings lets you paste tokens obtained from [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground).
 
 ### 3. Add Directory Mappings
 
-1. In the **Directory Mappings** section, click **Add Mapping**
+1. In the **Directory Mappings** section, use the **Add** button to create a mapping
 2. Set **Local Path** — the vault folder to sync (e.g., `Documents`)
 3. Set **Drive Folder ID** — the Google Drive folder ID (from the URL: `https://drive.google.com/drive/folders/<FOLDER_ID>`)
-4. Click **Test** to verify the folder is accessible
+4. Click **Test All** to verify enabled folder connections (green ✓ / red ✗ status indicators)
 5. Enable the mapping
 
 ## Usage
@@ -65,6 +67,7 @@ Synchronize your Obsidian vault with Google Drive. Bidirectional sync with confl
 | **Sync now with Google Drive** | Full bidirectional sync (upload + download + delete) |
 | **Pull from Google Drive** | One-way download only (no uploads, no Drive deletions) |
 | **Show sync status** | Display last sync time and synced file count |
+| **Resolve pending conflicts** | Currently shows sync status (same as above); conflict review is handled inside the sync/pull flow |
 
 ### Sync Behavior
 
@@ -86,7 +89,7 @@ Files and folders can be ignored during sync:
 
 ## Configuration
 
-All settings are stored in `.obsidian/plugins/gdrive-sync/data.json`:
+All settings are stored in `.obsidian/plugins/gdrive-bisync/data.json`:
 
 - **OAuth** — Client ID, encrypted tokens, token expiry
 - **Sync Mode** — Manual, auto-pull, auto-push, or full auto
@@ -100,7 +103,7 @@ All settings are stored in `.obsidian/plugins/gdrive-sync/data.json`:
 - OAuth tokens are encrypted with **AES-256-GCM** before storage
 - The encryption key is generated at runtime and stored in the plugin config
 - **Note:** The encryption key and encrypted tokens reside in the same config file (`data.json`). This is standard for Obsidian plugins but means anyone with filesystem access to your vault can decrypt the tokens. Treat your vault's config with the same care as your credentials.
-- Token refresh happens transparently; expired tokens are automatically cleared.
+- Token refresh happens transparently using the stored refresh token. If refresh or decryption fails, the tokens are cleared and you must sign in again.
 
 ## Development
 
