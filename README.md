@@ -30,27 +30,13 @@ Synchronize your Obsidian vault with Google Drive. Bidirectional sync with confl
 
 ## Setup
 
-### 1. Create a Google Cloud Project
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create a new project or select an existing one
-3. Go to **APIs & Services** → **Library** and enable **Google Drive API**
-4. Go to **APIs & Services** → **Credentials**
-5. Click **Create Credentials** → **OAuth 2.0 Client ID**
-   - Application type: **Desktop app**
-   - **Only if you plan to use the manual OAuth Playground token method:** add `https://developers.google.com/oauthplayground` to **Authorized redirect URIs**. The standard device-code flow does not require a redirect URI.
-6. Copy the **Client ID**
-
-### 2. Configure the Plugin
+### 1. Configure the Plugin
 
 1. Open **Settings** → **OmniSync GDrive**
-2. Click **Sign in with Google**
-3. Enter your **Client ID** when prompted and follow the device code flow
-4. After signing in, the status bar shows `☁️ GDrive: idle`. Use **Test All** in the **Directory Mappings** section to verify folder access
+2. Click **Sign in with Google** and follow the device code flow
+3. After signing in, the status bar shows `☁️ GDrive: idle`. Use **Test All** in the **Directory Mappings** section to verify folder access
 
-> **Alternative:** the **Manual Token Setup (OAuth Playground)** section in settings lets you paste tokens obtained from [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground).
-
-### 3. Add Directory Mappings
+### 2. Add Directory Mappings
 
 1. In the **Directory Mappings** section, use the **Add** button to create a mapping
 2. Set **Local Path** — the vault folder to sync (e.g., `Documents`)

@@ -20,13 +20,4 @@ Obsidian 社区插件 **OmniSync GDrive**（插件 ID `gdrive-bisync`）：将 O
 
 > 注意：插件 ID 为 `gdrive-bisync`，安装目录与配置路径 `.obsidian/plugins/gdrive-bisync/` 必须与此一致；`build-release.sh` 中的 `gdrive-sync` 仅是 zip 压缩包的文件名。
 
-## 发布记录
-
-### v1.0.3（2026-08-19）
-
-修正 README 与实现之间的偏差：
-
-- 插件 ID / 安装目录（`gdrive-bisync`）、Releases 链接（`DoneSpeak/obsidian-plugin-googe-drive-sync`）、社区插件搜索名（OmniSync GDrive）
-- OAuth 配置步骤：设备码流程无需重定向 URI；登录入口是「Sign in with Google」（Client ID 在弹窗中输入）；连接验证使用目录映射区的 **Test All**
-- 补充命令表中缺失的 **Resolve pending conflicts**；修正「Visual diff」等不实功能描述
-- 数据文件路径 `.obsidian/plugins/gdrive-bisync/data.json`、token 刷新/清空行为等安全说明
+> 发布记录不写入 CLAUDE.md，发布历史以 git tag 和 GitHub Releases 为准。
