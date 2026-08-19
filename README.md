@@ -24,11 +24,11 @@ Synchronize your Obsidian vault with Google Drive. Bidirectional sync with confl
 
 ### Manual Installation
 
-1. Download `omnisync-gdrive.zip` from the [releases page](https://github.com/DoneSpeak/obsidian-plugin-googe-drive-sync/releases)
-2. Create the `.obsidian/plugins/omnisync-gdrive/` folder in your vault (the folder name must match the plugin ID) and unzip the archive into it
+1. Download `gdrive-bisync.zip` from the [releases page](https://github.com/DoneSpeak/obsidian-plugin-googe-drive-sync/releases)
+2. Create the `.obsidian/plugins/gdrive-bisync/` folder in your vault (the folder name must match the plugin ID) and unzip the archive into it
 3. Enable the plugin in **Settings** → **Community Plugins**
 
-> Each release also attaches the flat `main.js`, `manifest.json`, and `styles.css` files, which is what the Obsidian community installer uses. The `omnisync-gdrive.zip` is an additional convenience for manual/BRAT installs and is also produced locally by `bash build/build-release.sh` (output: `dist/omnisync-gdrive.zip`).
+> Each release also attaches the flat `main.js`, `manifest.json`, and `styles.css` files, which is what the Obsidian community installer uses. The `gdrive-bisync.zip` is an additional convenience for manual/BRAT installs and is also produced locally by `bash build/build-release.sh` (output: `dist/gdrive-bisync.zip`).
 
 ## Setup
 
@@ -77,7 +77,7 @@ Files and folders can be ignored during sync:
 
 ## Configuration
 
-All settings are stored in `.obsidian/plugins/omnisync-gdrive/data.json`:
+All settings are stored in `.obsidian/plugins/gdrive-bisync/data.json`:
 
 - **OAuth** — Client ID, encrypted tokens, token expiry
 - **Sync Mode** — Manual, auto-pull, auto-push, or full auto
@@ -115,7 +115,7 @@ Output: `main.js`
 bash build/build-release.sh
 ```
 
-Output: `dist/omnisync-gdrive.zip`
+Output: `dist/gdrive-bisync.zip`
 
 ### Project Structure
 

@@ -1,6 +1,6 @@
 {
-  "name": "omnisync-gdrive",
-  "version": "1.0.5",
+  "name": "gdrive-bisync",
+  "version": "1.0.6",
   "description": "Sync Obsidian vault with Google Drive",
   "main": "main.js",
   "scripts": {

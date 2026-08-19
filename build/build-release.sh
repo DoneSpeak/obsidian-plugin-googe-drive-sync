@@ -2,7 +2,7 @@
 # Build and package the plugin for distribution
 set -e
 
-PLUGIN_NAME="omnisync-gdrive"
+PLUGIN_NAME="gdrive-bisync"
 OUTPUT_DIR="./dist"
 
 echo "🔨 Building plugin..."

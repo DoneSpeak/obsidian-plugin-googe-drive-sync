@@ -4,7 +4,7 @@ main.js.map
 dist/
 .DS_Store
 *.log
-*.obsidian/plugins/omnisync-gdrive/data.json
+*.obsidian/plugins/gdrive-bisync/data.json
 sample/test-obsidian-vault
 .superpowers/
 .claude/
