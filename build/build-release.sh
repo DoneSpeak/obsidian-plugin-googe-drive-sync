@@ -2,13 +2,14 @@
 # Build and package the plugin for distribution
 set -e
 
-PLUGIN_NAME="gdrive-sync"
-OUTPUT_DIR="./dist/$PLUGIN_NAME"
+PLUGIN_NAME="omnisync-gdrive"
+OUTPUT_DIR="./dist"
 
 echo "🔨 Building plugin..."
 npm run build
 
 echo "📁 Creating release package..."
+rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
 # Copy required files
@@ -19,9 +20,10 @@ if [ -f styles.css ]; then
   cp styles.css "$OUTPUT_DIR/"
 fi
 
-# Create zip
-cd ./dist
-zip -r "${PLUGIN_NAME}.zip" "$PLUGIN_NAME"
+# Create zip with files at the root so users can unzip directly
+# into .obsidian/plugins/<plugin-id>/
+cd "$OUTPUT_DIR"
+zip -r "${PLUGIN_NAME}.zip" main.js manifest.json styles.css
 cd ..
 
 echo "✅ Release package created: dist/${PLUGIN_NAME}.zip"

@@ -28,8 +28,9 @@ jobs:
 
       - name: Package release
         run: |
-          mkdir -p release
+          mkdir -p release dist
           cp main.js manifest.json styles.css release/
+          (cd release && zip -r ../dist/omnisync-gdrive.zip .)
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -38,6 +39,7 @@ jobs:
             release/main.js
             release/manifest.json
             release/styles.css
+            dist/omnisync-gdrive.zip
           draft: false
           prerelease: false
           generate_release_notes: true
